@@ -99,9 +99,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // 署名検証
   const signature = req.headers['x-line-signature'] as string
+  if (!signature || !LINE_SECRET) {
+    return res.status(200).json({ ok: true, message: 'no signature or secret' })
+  }
   const body = JSON.stringify(req.body)
   if (!verifySignature(body, signature)) {
-    return res.status(401).end()
+    return res.status(200).json({ ok: true, message: 'signature mismatch' })
   }
 
   const events = req.body?.events || []
